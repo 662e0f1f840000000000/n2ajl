@@ -45,9 +45,8 @@ Node::Node(const utf8_t* szValue)
 		iter.Advance();
 	}
 
-	m_szValue.resize(uByteLength + 1);
-	memcpy(const_cast<char*>(m_szValue.data()), szValue, uByteLength); // bad hack
-	m_szValue[uByteLength] = '\0';
+	m_szValue.resize(uByteLength);
+	memcpy(const_cast<char*>(m_szValue.data()), szValue, uByteLength);
 }
 
 Node::Node(const utf8string& szValue)
@@ -87,10 +86,7 @@ Node Node::String()
 bool Node::GetBool() const
 {
 	if (m_eType != Type::Boolean)
-	{
-		__debugbreak();
-		std::abort();
-	}
+		ON_TYPE_CHECK_FAIL
 
 	return m_bValue;
 }
@@ -98,10 +94,7 @@ bool Node::GetBool() const
 double Node::GetNumber() const
 {
 	if (m_eType != Type::Number)
-	{
-		__debugbreak();
-		std::abort();
-	}
+		ON_TYPE_CHECK_FAIL
 
 	return m_dblValue;
 }
@@ -109,10 +102,7 @@ double Node::GetNumber() const
 const utf8string& Node::GetString() const
 {
 	if (m_eType != Type::String)
-	{
-		__debugbreak();
-		std::abort();
-	}
+		ON_TYPE_CHECK_FAIL
 
 	return m_szValue;
 }
@@ -201,7 +191,6 @@ Node::Node(Node&& RHS) noexcept
 Node* Node::Get(const utf8string& szLabel)
 {
 	ENSURE_OBJECT
-
 	auto it = m_mChildren.find(szLabel);
 	return it != m_mChildren.end() ? &it->second : nullptr;
 }
@@ -209,7 +198,6 @@ Node* Node::Get(const utf8string& szLabel)
 const Node* Node::Get(const utf8string& szLabel) const
 {
 	ENSURE_OBJECT
-
 	auto it = m_mChildren.find(szLabel);
 	return it != m_mChildren.end() ? &it->second : nullptr;
 }
@@ -217,7 +205,6 @@ const Node* Node::Get(const utf8string& szLabel) const
 void Node::Set(const utf8string& szLabel, const Node& n)
 {
 	ENSURE_OBJECT
-
 	m_mChildren[szLabel] = n;
 }
 
@@ -260,7 +247,6 @@ utf8string Node::GetOrDefault(const utf8string& szLabel, const utf8_t* szDefault
 void Node::ForEachMember(const std::function<void(const std::string&, Node&)>& callback)
 {
 	ENSURE_OBJECT
-
 	for (auto it : m_mChildren)
 		callback(it.first, it.second);
 }
@@ -268,7 +254,6 @@ void Node::ForEachMember(const std::function<void(const std::string&, Node&)>& c
 void Node::ForEachMember(const std::function<void(const std::string&, const Node&)>& callback) const
 {
 	ENSURE_OBJECT
-
 	for (auto it : m_mChildren)
 		callback(it.first, it.second);
 }
@@ -276,7 +261,6 @@ void Node::ForEachMember(const std::function<void(const std::string&, const Node
 size_t Node::GetNumMembers() const
 {
 	ENSURE_OBJECT
-
 	return m_mChildren.size();
 }
 
@@ -285,21 +269,18 @@ size_t Node::GetNumMembers() const
 size_t Node::Length() const
 {
 	ENSURE_ARRAY
-
 	return m_vElements.size();
 }
 
 Node* Node::At(size_t i)
 {
 	ENSURE_ARRAY
-
 	return &m_vElements[i];
 }
 
 void Node::Append(const Node& n)
 {
 	ENSURE_ARRAY
-
 	if (m_vElements.empty())
 		m_eElementType = n.m_eType;
 
@@ -315,14 +296,12 @@ void Node::Append(const Node& n)
 void Node::Insert(size_t i, const Node& n)
 {
 	ENSURE_ARRAY
-
 	m_vElements.insert(m_vElements.begin() + i, n);
 }
 
 void Node::Remove(size_t i)
 {
 	ENSURE_ARRAY
-
 	m_vElements.erase(m_vElements.begin() + i);
 
 	if (m_vElements.empty())
@@ -332,14 +311,12 @@ void Node::Remove(size_t i)
 Node::Type Node::GetElementType() const
 {
 	ENSURE_ARRAY
-
 	return m_eElementType;
 }
 
 void Node::ForEachElement(const std::function<void(Node&)>& callback)
 {
 	ENSURE_ARRAY
-
 	for (Node& n : m_vElements)
 		callback(n);
 }
@@ -347,7 +324,6 @@ void Node::ForEachElement(const std::function<void(Node&)>& callback)
 void Node::ForEachElement(const std::function<void(const Node&)>& callback) const
 {
 	ENSURE_ARRAY
-
 	for (const Node& n : m_vElements)
 		callback(n);
 }
